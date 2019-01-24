@@ -68,7 +68,7 @@ def initialize(starting_board=None):
     gt = GameTree(depth,max_depth,None)
     return gt
 
-max_depth = 4
+max_depth = 3
 if __name__ == '__main__':
     print('GameTree main')
     depth = 0

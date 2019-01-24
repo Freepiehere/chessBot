@@ -57,16 +57,17 @@ def split_list(game):
     moves = game[:-1]
     result = game[-1]
     return moves,result
-# separate game moves from labels in the archive
-games = []
-labels = []
-for game in archive:
-    sample,label = split_list(game)
-    games.append(sample) 
-    labels.append(label)
-
-print(games[0])
-
 if __name__=='__main__':
+# separate game moves from labels in the archive
+    games = []
+    labels = []
+    for game in archive:
+        sample,label = split_list(game)
+        games.append(sample) 
+        labels.append(label)
+
+    print(games[0])
+
+
     board = chess.Board()
     m = Model(board)
