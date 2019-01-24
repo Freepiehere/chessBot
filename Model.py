@@ -52,8 +52,6 @@ class Model():
 
         print(rank)
         return rank
-
-        pass
 # dataset unzipping helper (label is last element of game)
 def split_list(game):
     moves = game[:-1]
