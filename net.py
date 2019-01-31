@@ -24,7 +24,7 @@ class Net():
 
         # optimizer trining parameters
         self.learning_rate = 0.001
-        self.num_epochs = 100
+        self.num_epochs = 10
         try:
             json_file = open("model.json","r")
             loaded_model_json = json_file.read()
@@ -35,10 +35,14 @@ class Net():
         except Exception:
             self.model = self.architecture()
 
+
+#1 1024 layer: 47.45% accuracy
+
     def architecture(self):
         print('Building AI...')
 
         model = keras.models.Sequential()
+        model.add(keras.layers.Dense(1024,activation='relu'))
         model.add(keras.layers.Dense(1024,activation=None))
         model.add(keras.layers.Dropout(0.2))
         model.add(keras.layers.Dense(self.num_output,activation='softmax'))
@@ -50,8 +54,8 @@ class Net():
         training_samples = self.X
         training_labels = self.Y
         optimizer = keras.optimizers.RMSprop(lr=self.learning_rate,decay=1/self.num_epochs)
-        loss = keras.losses.categorical_crossentropy
-        self.model.compile(optimizer=optimizer,loss=loss,metrics=['accuracy'])
+        loss = keras.losses.mean_squared_error
+        self.model.compile(optimizer='sgd',loss=loss,metrics=['accuracy'])
         self.model.fit(training_samples,training_labels,epochs=self.num_epochs)
         scores = self.model.evaluate(training_samples,training_labels,verbose=0)
         print("%s: %.2f%%" % (self.model.metrics_names[1], scores[1]*100))

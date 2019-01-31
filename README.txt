@@ -56,3 +56,15 @@ the board may be represented and a 768 bit vector; 64squares*6pieces*2teams
 -State inherits the object function. Accepts a chess.Board() object (default, None))
 
 * net:
+-Defines AI architecture using keras models
+	-Inputs (768,) bit vector, outputs 3 bit vector representing a prediction of win tie or loss (w.r. to white)
+-Trains keras model with Stochastic Gradient Descent optimizer and mean_square loss function
+-Saves model in .json format
+-Saves wieghts in .h5 format
+
+* get_dataset:
+-Reads dataset of chess games(~2.2M) stored in pgn format.
+-Represents board confiugurations as 768 bit vector (utilizing State)
+-Represents outcome of game as 3 bit vector
+-Saves board vectors and result vectors as training samples and labels, respectively
+	-Saved to "dataset.npz"
