@@ -8,7 +8,7 @@ import chess
 # Accepts a vectorized board object as input
 # Returns single numerical value which represents the favoritability of a game (+=White;-=Black)
 
-class State(object):
+class state(object):
     def __init__(self,board=None):
         if board:
             self.board = board
