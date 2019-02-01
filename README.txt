@@ -1,3 +1,9 @@
+ * Progress:
+ -Reworked gametree to behave faster
+ -Wrote player to play with itself
+ * Problems:
+ -Hitting bug where "'GameTree' object has no attribute 'score'" somewhere in the game.
+ -Algorithm plays same game over and over again.
  * Introduction:
 
 Section 1:

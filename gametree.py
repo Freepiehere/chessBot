@@ -10,51 +10,67 @@ class GameTree():
         self.depth = depth
         self.max_depth = max_depth
 
-        # Construct Game Tree
         if gt:
-            for child in gt.children:
-                GameTree(depth+1,max_depth,None,child)
+            self.children = gt.children
+            self.board = gt.board
         elif board:
+            self.children = None
             self.board = board
         else:
-            self.board = chess.Board()
-
-        #True: white; False: black
-        self.turn = self.board.turn
-
-        #Reached max depth: chidren = None.
-        #Only calculate score of deepest layer
-        if self.depth > max_depth:
             self.children = None
-            #!!!!!!!!!!!!!!!!!#
-            # Insert Model scoring system
-            net = Net(model=model)
-            vector = state(self.board).vectorizeInput()
-            self.score = net.evaluateSample(vector) #return 3-bit vector (1/0,1/0,1/0)
-            self.score[-1] *=-1
-            self.score[-2] -=0.5
-            if self.turn:
-                self.score = max(self.score)
-            else:
-                self.score = min(self.score)
+            self.board = chess.Board()
+        self.turn = self.board.turn
+        
+        if self.depth > self.max_depth:
+            self.terminateTree(self)
             return None
         
-        self.children = []
-        self.spawnChildren()
+        if not self.children:
+            self.newLayer(self)
+        else:
+            for child in self.children:
+                self.propogateTree(child)
+    
+    def propogateTree(self,gt):
+        gt.depth = self.depth+1
+        if gt.depth > self.max_depth:
+            self.terminateTree(gt)
+            return None
+        if not gt.children:
+            self.newLayer(gt)
+    
+    def newLayer(self,gt):
+        gt.children = []
+        gt.spawnChildren()
+    
+    def terminateTree(self,gt):
+        gt.children = None
+        sample = state(self.board).vectorizeInput()
+        self.score = net.evaluateSample(sample)
+        self.score[-2] -= 0.5
+        self.score[-1] *= -1.
 
-        
     # METHOD TO BE CALLED FROM HEAD NODE #
     # Searches child board configurations for their score. If white ('w'), maximize the score
     # Else if black ('b'), minimize the score.
     def evaluate(self):
-        if self.children != None:
+        if not self.children:
+            scores = self.score
+        else:
             scores = []
             for child in self.children:
                 scores.append(child.evaluate())
-            if self.turn:
+        if self.turn:
+            try:
                 self.score = max(scores)
-            else:
+            except Exception:
+                self.score = scores
+        else:
+            try:
                 self.score = min(scores)
+            except Exception:
+                self.score = scores
+        
         return self.score
         
 
@@ -83,6 +99,7 @@ def loadModel(filename = "model.json"):
     loaded_model.load_weights("model.h5")
     return loaded_model
 model = loadModel()
+net = Net(model=model)
 
 if __name__ == '__main__':
     print('GameTree main')
