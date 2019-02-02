@@ -30,8 +30,11 @@ class Player():
         else:
             child_index = move_scores.index(min(move_scores))
         rand = random.randint(0,100)
-        if rand<10:
-            self.opponent.gt = GameTree(depth=0,max_depth=2,gt=self.gt.children[random.randint(0,len(self.gt.children))])        
+        thresh = 20
+        # thresh* percent change a random move is made
+        # avoids the same game being played
+        if rand < thresh:
+            self.opponent.gt = GameTree(depth=0,max_depth=2,gt=self.gt.children[random.randint(0,len(self.gt.children)-1)])        
         else:
             self.opponent.gt = GameTree(depth=0,max_depth=2,gt=self.gt.children[child_index])
         self.passTurn()

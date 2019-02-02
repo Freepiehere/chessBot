@@ -45,10 +45,15 @@ class GameTree():
     
     def terminateTree(self,gt):
         gt.children = None
+        if not gt.board.is_checkmate:
+            print("checkmate detected")
+            self.score = [1.,0.,0.]
+            return
         sample = state(self.board).vectorizeInput()
         self.score = net.evaluateSample(sample)
         self.score[-2] -= 0.5
         self.score[-1] *= -1.
+        
 
     # METHOD TO BE CALLED FROM HEAD NODE #
     # Searches child board configurations for their score. If white ('w'), maximize the score
