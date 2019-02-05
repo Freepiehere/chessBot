@@ -31,22 +31,9 @@ Vecotrization:
 the board may be represented and a 768 bit vector; 64squares*6pieces*2teams
 
  * Requirements:
--Heuristic game exploration algorithm.
-	-Exploring as many possible games as possible.
-	-Choose the board of highest feasible score.
-		-Assuming opponent will play "perfectly"
-
--Board scoring algorithm.
-	-Based in machine learning coefficient estimator.
-	-coefficients of board features calculate board score.
-
--A chess interface (pychess?).
-	- the algorithm may pull possible moves.
-		-stored to datastructure.
-
--A data parser for a text-based database file.
-	-Format shown above in sec 2.
-
+- GmeTree datastructure which maintains constant depth as traversal occurs, and which
+	propogates board scores from the bottom layer to the head of the tree.
+-
 * GameTree:
 -Accepts current depth, max depth, current board cinfiguration (default None), 
 	and a GameTree object (default None)

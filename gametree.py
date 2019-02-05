@@ -3,82 +3,49 @@ import time
 import numpy as np
 import random
 from net import Net
-from state import state
 
 class GameTree():
-    def __init__(self,depth,max_depth,board=None,gt=None):
-        self.depth = depth
+    def __init__(self,depth,max_depth,board=None):
+        self.depth = depth  
         self.max_depth = max_depth
-
-        if gt:
-            self.children = gt.children
-            self.board = gt.board
-        elif board:
-            self.children = None
+        self.children = []
+        if board:
             self.board = board
         else:
-            self.children = None
             self.board = chess.Board()
-        self.turn = self.board.turn
         
-        if self.depth > self.max_depth:
-            self.terminateTree(self)
+        self.propogateTree()
+
+    def chooseScore(self,board_score):
+        if self.board.turn:
+            return max(board_score)
+        return min(board_score)
+
+    def scoreTree(self):
+        #something wrong with scoring system.
+        #Isn't the parent supposed to inherit score from the children
+        #And rethink the whole subracting half and multiplying by -1 crap.
+        #relate the score of the node to the INDEX of the max number found in the net output
+
+    def checkDepth(self):
+        if self.depth>self.max_depth:
+            return True
+        return False
+
+    def setDepth(self,depth):
+        self.depth = depth
+        for child in self.children:
+            child.setDepth(depth+1)
+    
+    def propogateTree(self):
+        if self.checkDepth():
             return None
-        
-        if not self.children:
-            self.newLayer(self)
+        elif not self.children:
+            self.spawnChildren()
         else:
             for child in self.children:
-                self.propogateTree(child)
-    
-    def propogateTree(self,gt):
-        gt.depth = self.depth+1
-        if gt.depth > self.max_depth:
-            self.terminateTree(gt)
-            return None
-        if not gt.children:
-            self.newLayer(gt)
-    
-    def newLayer(self,gt):
-        gt.children = []
-        gt.spawnChildren()
-    
-    def terminateTree(self,gt):
-        gt.children = None
-        if not gt.board.is_checkmate:
-            print("checkmate detected")
-            self.score = [1.,0.,0.]
-            return
-        sample = state(self.board).vectorizeInput()
-        self.score = net.evaluateSample(sample)
-        self.score[-2] -= 0.5
-        self.score[-1] *= -1.
+                child.propogateTree()
         
-
-    # METHOD TO BE CALLED FROM HEAD NODE #
-    # Searches child board configurations for their score. If white ('w'), maximize the score
-    # Else if black ('b'), minimize the score.
-    def evaluate(self):
-        if not self.children:
-            scores = self.score
-        else:
-            scores = []
-            for child in self.children:
-                scores.append(child.evaluate())
-        if self.turn:
-            try:
-                self.score = max(scores)
-            except Exception:
-                self.score = scores
-        else:
-            try:
-                self.score = min(scores)
-            except Exception:
-                self.score = scores
-        
-        return self.score
-        
-
     # Accepts chess board object and populates children field with legal board configurations
     def spawnChildren(self):
         for move in self.board.legal_moves:
@@ -90,9 +57,9 @@ class GameTree():
 
 max_depth = 2
 
-def initialize(max_depth=max_depth,starting_board=None,starting_gt=None):
+def initialize(max_depth=max_depth,starting_board=None):
     depth = 0
-    gt = GameTree(depth,max_depth,starting_board,starting_gt)
+    gt = GameTree(depth,max_depth)
     return gt
 
 def loadModel(filename = "model.json"):
@@ -103,18 +70,27 @@ def loadModel(filename = "model.json"):
     loaded_model = keras.models.model_from_json(loaded_model_json)
     loaded_model.load_weights("model.h5")
     return loaded_model
+
 model = loadModel()
 net = Net(model=model)
 
 if __name__ == '__main__':
     print('GameTree main')
     depth = 0
+    board =chess.Board()
+
     tik = time.time()
-    gt = initialize()
+    gt = GameTree(depth,max_depth)
     tok = time.time()
-    print("Time to initialize: %f" % (tok-tik))
-    tik=time.time()
-    gt_score = gt.evaluate()
-    tok=time.time()
-    print(gt_score)
-    print("Time to traverse: %f" % (tok-tik))
+    print('Time to initiate: %f' % (tok-tik))
+
+    tik = time.time()
+    gt.scoreTree()
+    tok = time.time()
+    print('Time to score: %f' % (tok-tik))
+
+    while gt.children:
+        print(gt.board)
+        print(gt.score)
+        print()
+        gt = gt.children[0]
