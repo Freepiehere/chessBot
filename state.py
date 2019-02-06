@@ -8,7 +8,7 @@ import chess
 # Accepts a vectorized board object as input
 # Returns single numerical value which represents the favoritability of a game (+=White;-=Black)
 
-class state(object):
+class State(object):
     def __init__(self,board=None):
         if board:
             self.board = board
@@ -34,7 +34,7 @@ class state(object):
                 key = rank[j]
                 ind = dics[key]
                 vector[i,j,ind] = 1.
-        return vector.flatten()
+        return vector
 
     # Numbers in a fen represent the number of empty spaces to insert
     # Function insterSpaces(rank) handles numerical strings in fen

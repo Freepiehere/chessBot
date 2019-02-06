@@ -3,6 +3,7 @@ import time
 import numpy as np
 import random
 from net import Net
+import threading
 
 class GameTree():
     def __init__(self,depth,max_depth,board=None):
@@ -13,7 +14,7 @@ class GameTree():
             self.board = board
         else:
             self.board = chess.Board()
-        
+
         self.propogateTree()
 
     def chooseScore(self,board_score):
@@ -22,10 +23,32 @@ class GameTree():
         return min(board_score)
 
     def scoreTree(self):
+
         #something wrong with scoring system.
         #Isn't the parent supposed to inherit score from the children
         #And rethink the whole subracting half and multiplying by -1 crap.
         #relate the score of the node to the INDEX of the max number found in the net output
+
+        #Assume start at bottom of tree
+        #mutate field self.score
+        if self.checkDepth():
+            scores = net.evaluateSample(self.board)
+            s_ind = np.argmax(scores)
+            if s_ind == 2:
+                self.score = -1*scores[s_ind]
+            elif s_ind == 0:
+                self.score = scores[s_ind]
+            else:
+                self.score = scores[s_ind]-0.5
+        else:
+            scores = []
+            for child in self.children:
+                scores.append(child.score)
+            if self.board.turn:
+                self.score = max(scores)
+            else:
+                self.score = min(scores)
+
 
     def checkDepth(self):
         if self.depth>self.max_depth:
@@ -39,12 +62,16 @@ class GameTree():
     
     def propogateTree(self):
         if self.checkDepth():
+            self.scoreTree()
             return None
         elif not self.children:
             self.spawnChildren()
         else:
             for child in self.children:
+                child.depth = self.depth+1
                 child.propogateTree()
+        self.scoreTree()
+            
         
     # Accepts chess board object and populates children field with legal board configurations
     def spawnChildren(self):
